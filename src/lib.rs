@@ -1,21 +1,10 @@
 // lib.rs
 //
-// . library to load stock price informaiton from the yahoo api
+// . library to load stock price information from the yahoo api
 //
-//use yahoo_finance_api as yahoo;
+
 use yahoo_finance_api::{Quote, YahooError, YahooConnector, YResponse};
 use chrono::{DateTime, Utc};
-
-// #[derive(Debug, Clone, Copy)]
-// struct Quote {
-//     timestamp: i64,
-//     high: f32,
-//     low: f32,
-//     open: f32,
-//     close: f32,
-//     adjclose: f32,
-//     volume: u64
-// }
 
 #[derive(Debug)]
 pub struct PriceSeries {
@@ -43,7 +32,7 @@ impl PriceSeries {
         let reply: YResponse = provider.get_quote_history(ticker, start, end)?;
         let quotes: Vec<Quote> = reply.quotes()?;
         
-        println!("quotes: {:?}", quotes);
+        //println!("quotes: {:?}", quotes);
         Ok(PriceSeries{
             ticker: String::from(ticker),
             quotes,
@@ -55,6 +44,20 @@ impl PriceSeries {
 
 }
 
+// cruft
+//
+//use yahoo_finance_api as yahoo;
+    
+// #[derive(Debug, Clone, Copy)]
+// struct Quote {
+//     timestamp: i64,
+//     high: f32,
+//     low: f32,
+//     open: f32,
+//     close: f32,
+//     adjclose: f32,
+//     volume: u64
+// }
 
     // let ticker = "AAPL";
     // let provider = yahoo::YahooConnector::new();
