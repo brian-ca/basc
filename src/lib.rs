@@ -3,6 +3,16 @@
 // . library to load stock price information from the yahoo api
 //
 
+//
+// . to do
+//
+// . 1) add unused function to aggregate adjclose data
+//   2) add unused functions min and max
+// . 3) rework existing min and max calculations to work on adjclose
+// . 4) add unused sma function
+// . 5) add unused diff function
+//
+
 use yahoo_finance_api::{Quote, YahooError, YahooConnector, YResponse};
 use chrono::{DateTime, Utc};
 
@@ -32,7 +42,6 @@ impl PriceSeries {
         let reply: YResponse = provider.get_quote_history(ticker, start, end)?;
         let quotes: Vec<Quote> = reply.quotes()?;
         
-        //println!("quotes: {:?}", quotes);
         Ok(PriceSeries{
             ticker: String::from(ticker),
             quotes,
@@ -41,7 +50,11 @@ impl PriceSeries {
         })
     }
 
-    pub fn to_csv(& self) -> Vec<String> {
+    pub fn header() -> String {
+        String::from("period_start,symbol,last_close_price,change_%,min,max,30d_avg")
+    }
+
+    pub fn to_csv(&self) -> String {
         // PriceSeries { 
         //     ticker: "MSFT", 
         //     quotes: [Quote { timestamp: 1640269800, open: 332.75, high: 336.3900146484375, 
@@ -56,29 +69,25 @@ impl PriceSeries {
         let period_start = &self.start.to_rfc3339();
         let ticker = &self.ticker;
         let quotes = &self.quotes;
-
+        
         let end_quote = quotes
             .iter()
             .max_by(|q1, q2| q1.timestamp.cmp(&q2.timestamp))
             .unwrap();
-
         let start_quote = quotes
             .iter()
             .min_by(|q1, q2| q1.timestamp.cmp(&q2.timestamp))
             .unwrap();
-
         let min = quotes
             .iter()
             .min_by(|q1, q2| q1.low.partial_cmp(&q2.low).unwrap())
             .unwrap()
             .low;
-            
         let max = quotes
             .iter()
             .max_by(|q1, q2| q1.high.partial_cmp(&q2.high).unwrap())
             .unwrap()
             .high;
-        
         let sum: f64 = quotes 
             .iter()
             .rev()
@@ -87,24 +96,12 @@ impl PriceSeries {
             .sum();
 
         let count = quotes.iter().take(30).count();
-
         let average = sum / count as f64;
-
         let end_close = end_quote.adjclose;
         let start_close = start_quote.adjclose;
-
         let percent_change = 100.0 * (end_close - start_close) / start_close;
 
-        println!("{},{},${:.2},{:.2}%,${:.2},${:.2},${:.2}", period_start, ticker, end_close, percent_change, min, max, average);
-        //println!("max = {:?}\nmin = {:?}", end_quote, start_quote);
-        //println!("start {}, ticker {}", period_start, ticker);
-            
-        // find min_by timestamp
-        // find max_by timestamp
-        let mut out = Vec::new();
-        out.push(String::from("period_start,symbol,last_close_price,change_%,min,max,30d_avg"));
-        println!("quotes: {:?}", self.quotes);
-        out
+        format!("{},{},${:.2},{:.2}%,${:.2},${:.2},${:.2}", period_start, ticker, end_close, percent_change, min, max, average)
     }
 }
 

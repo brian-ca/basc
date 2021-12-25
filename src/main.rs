@@ -1,6 +1,7 @@
 use chrono::{DateTime, Utc};
 use basc::PriceSeries; 
 use clap::{Arg, App, crate_authors, crate_version};
+use std::process::exit;
 
 fn main() {
     let matches = App::new("basc, a liveProject cli stock quote demonstrator")
@@ -8,7 +9,8 @@ fn main() {
         .author(crate_authors!())
         .about("send stock pricing from Yahoo to stdout formatted as CSV")
         .arg(Arg::with_name("TICKER")
-            .required(true))
+            .required(true)
+            .multiple(true))
         .arg(Arg::with_name("START")
             .required(true)
             .takes_value(true)
@@ -17,30 +19,31 @@ fn main() {
             .help("starting date, as 2020-12-19"))
         .get_matches();
 
-    // String
+    // format, parse and convert DateTime<FixedOffset> -> DateTime<Utc>
     let start = format!("{}T00:00:01-05:00", matches.value_of("START").unwrap());
-    let ticker = matches.value_of("TICKER").unwrap();
-
-    // DateTime<FixedOffset>
-    match DateTime::parse_from_rfc3339(&start) {
+    let start: DateTime<Utc> = match DateTime::parse_from_rfc3339(&start) {
         Ok(start) => {
-            // DateTime<Utc>
-            let start: DateTime<Utc> = start.into();
-            let end: DateTime<Utc> = Utc::now();
-            //println!("Start {}, End {}", start, end);
-
-            if let Ok(series) = PriceSeries::from_range(ticker, start, end) {
-                for line in series.to_csv() {
-                    println!("{}", line);
-                }
-                println!("PriceSeries retrieved: {:?}", series);
-            } else {
-                eprintln!("Unable to obtain quotes from Yahoo for {}, start {}, end {}",
-                        ticker, start, end);
-            }
+            start.into()
         },
         Err(_) => {
-            eprintln!("Unable to parse date. For more information try --help")
+            eprintln!("Unable to parse date. For more information try --help");
+            exit(1)
+        }
+    };
+    let end: DateTime<Utc> = Utc::now();
+    let tickers = matches.values_of("TICKER").unwrap();
+            
+    // write out the header
+    println!("{}", PriceSeries::header());
+            
+    for ticker in tickers {
+        if let Ok(series) = PriceSeries::from_range(ticker, start, end) {
+
+            // write out ticker data
+            println!("{}", series.to_csv());
+        } else {
+            eprintln!("Unable to obtain quotes from Yahoo for {}, start {}, end {}",
+                     ticker, start, end);
         }
     }
 }
