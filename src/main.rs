@@ -30,6 +30,9 @@ fn main() {
             //println!("Start {}, End {}", start, end);
 
             if let Ok(series) = PriceSeries::from_range(ticker, start, end) {
+                for line in series.to_csv() {
+                    println!("{}", line);
+                }
                 println!("PriceSeries retrieved: {:?}", series);
             } else {
                 eprintln!("Unable to obtain quotes from Yahoo for {}, start {}, end {}",
