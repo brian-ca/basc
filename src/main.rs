@@ -34,29 +34,31 @@ fn main() {
     let tickers = matches.values_of("TICKER").unwrap();
             
     // write out the header
+    println!("\n------ csv output ------");
     println!("{}", PriceSeries::header());
             
-    for ticker in tickers {
+    // write out ticker data
+    for ticker in tickers.clone() {
         if let Ok(series) = PriceSeries::from_range(ticker, start, end) {
-
-            // write out ticker data
             println!("{}", series.to_csv());
-
-            // demonstrate unused functions
-            let vals = &series.to_prices();
-            println!("{:?}", vals);
-            println!("{:?}", basc::min(vals));
-            println!("{:?}", basc::max(vals));
-            println!("{:?}", basc::n_window_sma(2, vals));
-            println!("{:?}", basc::price_diff(vals));
-
         } else {
             eprintln!("Unable to obtain quotes from Yahoo for {}, start {}, end {}",
                      ticker, start, end);
         }
     }
 
-
+    // demonstrate unused functions
+    println!("\n\n------ unused functions ------");
+    for ticker in tickers {
+        if let Ok(series) = PriceSeries::from_range(ticker, start, end) {
+            let vals = &series.to_prices();
+            println!("adjclose: {:?}", vals);
+            println!("min: {:?}", basc::min(vals));
+            println!("max: {:?}", basc::max(vals));
+            println!("n_window_sma: {:?}", basc::n_window_sma(2, vals));
+            println!("price_diff: {:?}\n", basc::price_diff(vals));
+        } 
+    }
 }
 
 // notes:
@@ -64,15 +66,3 @@ fn main() {
 // . only daily times supported.  uncertain of yahoo time base, so using UTC-5 midnight + 1 and
 // . UTC-5 midnight -1 for day start and end for now.  NYC is Eastern.  EST is UTC-5.
 //
-
-
-// cruft
-//
-    //let start: DateTime<Utc> = DateTime::parse_from_rfc339(format!("{}T00:00:01-00:00", matches.))
-    //let start: DateTime<Utc> = DateTime::parse_from_rfc3339("2020-12-19T00:00:00-07:00").unwrap().into();
-    //let end: DateTime<Utc> = DateTime::parse_from_rfc3339("2020-12-23T23:59:58-07:00").unwrap().into();
-    
-    
-    //if let Ok(series) = PriceSeries::from_range("AAPL", start, end) {
-    //    println!("got {:?}", series);
-    //}

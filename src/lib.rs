@@ -2,21 +2,8 @@
 //
 // . library to load stock price information from the yahoo api
 //
-
-//
-// . to do
-//
-// . 1) add unused function to aggregate adjclose data
-//   2) add unused functions min and max
-// . 3) rework existing min and max calculations to work on adjclose
-// . 4) add unused sma function
-// . 5) add unused diff function
-//
-
 use yahoo_finance_api::{Quote, YahooError, YahooConnector, YResponse};
 use chrono::{DateTime, Utc};
-//use f64;
-//use std::cmp::Ordering::{Less, Greater};
 
 pub fn min(prices: &[f64]) -> Option<f64> {
     if let Some(&p) = prices.iter().min_by(|q1, q2| q1.partial_cmp(&q2).unwrap()) {
@@ -75,7 +62,6 @@ impl PriceSeries {
             start,
             end 
         })
-
     }
 
     pub fn from_range(ticker: &str, start: DateTime<Utc>, end: DateTime<Utc>) -> 
@@ -154,34 +140,3 @@ impl PriceSeries {
         format!("{},{},${:.2},{:.2}%,${:.2},${:.2},${:.2}", period_start, ticker, end_close, percent_change, min, max, average)
     }
 }
-
-// cruft
-//
-//use yahoo_finance_api as yahoo;
-    
-// #[derive(Debug, Clone, Copy)]
-// struct Quote {
-//     timestamp: i64,
-//     high: f32,
-//     low: f32,
-//     open: f32,
-//     close: f32,
-//     adjclose: f32,
-//     volume: u64
-// }
-
-    // let ticker = "AAPL";
-    // let provider = yahoo::YahooConnector::new();
-    // let start = Utc.ymd(2020, 1, 1).and_hms_milli(0, 0, 0, 0);
-    // let end = Utc.ymd(2020, 1, 31).and_hms_milli(23, 59, 59, 999);
-
-    // let reply = provider.get_quote_history(ticker, start, end);
-    // let response = match reply {
-    //     Err(e) => {
-    //         eprintln!("Unable to obtain quotes for {} due to '{}'", ticker, e);
-    //         exit(1);
-    //     },
-    //     Ok(r) => r
-    // };
-    
-    // let quotes = response.quotes().unwrap();
