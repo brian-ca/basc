@@ -15,6 +15,49 @@
 
 use yahoo_finance_api::{Quote, YahooError, YahooConnector, YResponse};
 use chrono::{DateTime, Utc};
+//use f64;
+//use std::cmp::Ordering::{Less, Greater};
+
+pub fn min(prices: &[f64]) -> Option<f64> {
+    if let Some(&p) = prices.iter().min_by(|q1, q2| q1.partial_cmp(&q2).unwrap()) {
+        Some(p)
+    } else {
+        None
+    }
+}
+
+pub fn max(prices: &[f64]) -> Option<f64> {
+    if let Some(&p) = prices.iter().max_by(|q1, q2| q1.partial_cmp(&q2).unwrap()) {
+        Some(p)
+    } else {
+        None
+    }
+}
+
+pub fn n_window_sma(n: usize, series: &[f64]) -> Option<Vec<f64>> {
+    let out: Vec<f64> = series
+        .windows(n)
+        .map(|w| w.iter().sum::<f64>() / (n as f64))
+        .collect();
+    Some(out)
+}
+
+pub fn price_diff(series: &[f64]) -> Option<(f64, f64)> {
+    let first = series
+        .iter()
+        .next();
+    let last = series
+        .iter()
+        .last();
+    match (first, last) {
+        (Some(&f), Some(&l)) => {
+            let percent_diff = 100.0 * (l - f) / f;
+            let absolute_diff = l - f;
+            Some((percent_diff, absolute_diff))
+        },
+        _ => None
+    }
+}
 
 #[derive(Debug)]
 pub struct PriceSeries {
@@ -54,6 +97,13 @@ impl PriceSeries {
         String::from("period_start,symbol,last_close_price,change_%,min,max,30d_avg")
     }
 
+    pub fn to_prices(&self) -> Vec<f64> {
+        self.quotes
+        .iter()
+        .map(|q| {q.adjclose})
+        .collect()
+    }
+
     pub fn to_csv(&self) -> String {
         // PriceSeries { 
         //     ticker: "MSFT", 
@@ -80,14 +130,14 @@ impl PriceSeries {
             .unwrap();
         let min = quotes
             .iter()
-            .min_by(|q1, q2| q1.low.partial_cmp(&q2.low).unwrap())
+            .min_by(|q1, q2| q1.adjclose.partial_cmp(&q2.adjclose).unwrap())
             .unwrap()
-            .low;
+            .adjclose;
         let max = quotes
             .iter()
-            .max_by(|q1, q2| q1.high.partial_cmp(&q2.high).unwrap())
+            .max_by(|q1, q2| q1.adjclose.partial_cmp(&q2.adjclose).unwrap())
             .unwrap()
-            .high;
+            .adjclose;
         let sum: f64 = quotes 
             .iter()
             .rev()

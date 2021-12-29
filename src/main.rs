@@ -41,11 +41,22 @@ fn main() {
 
             // write out ticker data
             println!("{}", series.to_csv());
+
+            // demonstrate unused functions
+            let vals = &series.to_prices();
+            println!("{:?}", vals);
+            println!("{:?}", basc::min(vals));
+            println!("{:?}", basc::max(vals));
+            println!("{:?}", basc::n_window_sma(2, vals));
+            println!("{:?}", basc::price_diff(vals));
+
         } else {
             eprintln!("Unable to obtain quotes from Yahoo for {}, start {}, end {}",
                      ticker, start, end);
         }
     }
+
+
 }
 
 // notes:
