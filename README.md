@@ -3,6 +3,13 @@ Manning liveProject - Building a StockTracking CLI with Async Streams
 
 respository for demonstating completion of stages
 
+## Note
+
+There were several functions listed in step 4 that were not used in generating
+the CSV output, mostly due to having already implemented alternatives.  These
+were written anyway and used to generate additional output to demonstrate their
+function.  This output appears under the ----- unused functions ------ line.
+
 ## Example run
 
 ```
