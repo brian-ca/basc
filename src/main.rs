@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use basc::PriceSeries; 
+use basc::PriceSeries;
 use clap::{Arg, App, crate_authors, crate_version};
 use std::process::exit;
 
@@ -32,11 +32,11 @@ fn main() {
     };
     let end: DateTime<Utc> = Utc::now();
     let tickers = matches.values_of("TICKER").unwrap();
-            
+
     // write out the header
     println!("\n------ csv output ------");
     println!("{}", PriceSeries::header());
-            
+
     // write out ticker data
     for ticker in tickers.clone() {
         if let Ok(series) = PriceSeries::from_range(ticker, start, end) {
@@ -57,7 +57,7 @@ fn main() {
             println!("max: {:?}", basc::max(vals));
             println!("n_window_sma: {:?}", basc::n_window_sma(2, vals));
             println!("price_diff: {:?}\n", basc::price_diff(vals));
-        } 
+        }
     }
 }
 

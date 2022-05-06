@@ -10,3 +10,6 @@ edition = "2018"
 clap = "2.34"
 yahoo_finance_api = {version = "1.2.2", features = ["blocking"]}
 chrono = "0.4"
+
+[dev-dependencies]
+approx = "0.5.1"
